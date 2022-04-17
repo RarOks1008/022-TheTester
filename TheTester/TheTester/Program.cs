@@ -27,8 +27,8 @@ namespace TheTester
             actions1.Add(new ActionsObject("/html/body/div[2]/div[2]/input", "B", "input"));
             actions1.Add(new ActionsObject("/html/body/div[2]/div[3]/input", "random", "input"));
             actions1.Add(new ActionsObject("/html/body/div[2]/div[4]/button", "click", "click"));
-
             testingObjects.Add(new TestingObject("http://nikolanedeljkovic.com", 2000, 1, 10, actions1));
+
             RandomGenerator randomGenerator = new RandomGenerator();
             foreach (TestingObject testObj in testingObjects)
             {
@@ -44,10 +44,12 @@ namespace TheTester
                             IWebElement webElem = browser.FindElement(By.XPath(actionObj.ActionXPath));
                             if (actionObj.ActionValue == "random")
                             {
-                                webElem.SendKeys(randomGenerator.RandomString(1));
+                                webElem.Clear();
+                                webElem.SendKeys(randomGenerator.RandomString(8));
                             }
                             else
                             {
+                                webElem.Clear();
                                 webElem.SendKeys(actionObj.ActionValue);
                             }
                         }
@@ -65,8 +67,8 @@ namespace TheTester
                         }
                         System.Threading.Thread.Sleep(testObj.DelayBetweenActions * 1000);
                     }
+                    System.Threading.Thread.Sleep(testObj.DelayToNextObject * 1000);
                 }
-                System.Threading.Thread.Sleep(testObj.DelayToNextObject * 1000);
             }
         }
     }
