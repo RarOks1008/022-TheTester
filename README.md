@@ -5,7 +5,7 @@
 ## Remarks
 
 ### Files
-- you need to create an object which is a **List<TestingObject>** with the properties bellow:
+- you need to create an json object named *tester.json* which is a **List<TestingObject>** with the properties bellow:
   - *Url* - url of the inputs to check.
   - *NumberOfActions* - number of times to repeat the given task.
   - *DelayBetweenActions* - delay between actions for system to wait.
@@ -17,5 +17,6 @@
 
 - properties in the object **ActionsObject** are:
   - *ActionXPath* - xpath of the element to test.
-  - *ActionValue* - value to send to the object, for click can be empty, for select is value.
+  - *ActionValue* - value to send to the object, for click can be empty, for select is value (possible values are randomstring, randomnumbers and randomletters)
+  - *ActionRandomLength* - when value is random, use that length number of characters
   - *ActionAction* - type of html element (input, click, select)

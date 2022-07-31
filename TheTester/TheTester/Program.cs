@@ -7,6 +7,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
+using System.Net;
 
 namespace TheTester
 {
@@ -22,15 +23,18 @@ namespace TheTester
 
             ChromeDriver browser = new ChromeDriver(ChromeDriverService.CreateDefaultService(), options, TimeSpan.FromMinutes(3));
             browser.Manage().Timeouts().PageLoad.Add(System.TimeSpan.FromSeconds(1));
-            List<TestingObject> testingObjects = new List<TestingObject>();
-            List<ActionsObject> actions1 = new List<ActionsObject>();
-            actions1.Add(new ActionsObject("/html/body/div[2]/div[2]/input", "B", "input"));
-            actions1.Add(new ActionsObject("/html/body/div[2]/div[3]/input", "random", "input"));
-            actions1.Add(new ActionsObject("/html/body/div[2]/div[4]/button", "click", "click"));
-            testingObjects.Add(new TestingObject("http://nikolanedeljkovic.com", 2000, 1, 10, actions1));
+            TestingObjects testingObjects = new TestingObjects();
 
             RandomGenerator randomGenerator = new RandomGenerator();
-            foreach (TestingObject testObj in testingObjects)
+
+            using (WebClient wc = new WebClient())
+            {
+                wc.Encoding = Encoding.UTF8;
+                var json = wc.DownloadString("tester.json");
+                testingObjects = Newtonsoft.Json.JsonConvert.DeserializeObject<TestingObjects>(json);
+            }
+
+            foreach (TestingObject testObj in testingObjects.TestingsObject)
             {
                 for (int i = 0; i < testObj.NumberOfActions; i++)
                 {
@@ -42,10 +46,19 @@ namespace TheTester
                         if (actionObj.ActionAction == "input")
                         {
                             IWebElement webElem = browser.FindElement(By.XPath(actionObj.ActionXPath));
-                            if (actionObj.ActionValue == "random")
+                            if (actionObj.ActionValue == "randomstring")
                             {
                                 webElem.Clear();
-                                webElem.SendKeys(randomGenerator.RandomString(8));
+                                webElem.SendKeys(randomGenerator.RandomString(actionObj.ActionRandomLength));
+                            } else if (actionObj.ActionValue == "randomnumbers")
+                            {
+                                webElem.Clear();
+                                webElem.SendKeys(randomGenerator.RandomNumbers(actionObj.ActionRandomLength));
+                            }
+                            else if (actionObj.ActionValue == "randomletters")
+                            {
+                                webElem.Clear();
+                                webElem.SendKeys(randomGenerator.RandomLetters(actionObj.ActionRandomLength));
                             }
                             else
                             {
@@ -70,6 +83,20 @@ namespace TheTester
                     System.Threading.Thread.Sleep(testObj.DelayToNextObject * 1000);
                 }
             }
+        }
+    }
+
+
+    public class TestingObjects
+    {
+        public List<TestingObject> TestingsObject { get; set; }
+        public TestingObjects(List<TestingObject> testingsObject)
+        {
+            TestingsObject = testingsObject;
+        }
+        public TestingObjects()
+        {
+            TestingsObject = new List<TestingObject>();
         }
     }
 
@@ -103,29 +130,47 @@ namespace TheTester
             return new string(Enumerable.Repeat(chars, length)
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+
+        public string RandomLetters(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        public string RandomNumbers(int length)
+        {
+            const string chars = "0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
     }
 
     public class ActionsObject
     {
         public string ActionXPath { get; set; }
         public string ActionValue { get; set; }
+        public int ActionRandomLength { get; set; }
         public string ActionAction { get; set; }
-        public ActionsObject(string actionXPath, string actionValue, string actionAction)
+        public ActionsObject(string actionXPath, string actionValue, int actionRandomLength, string actionAction)
         {
             ActionXPath = actionXPath;
             ActionValue = actionValue;
+            ActionRandomLength = actionRandomLength;
             ActionAction = actionAction;
         }
         public ActionsObject(ActionsObject actions)
         {
             ActionXPath = actions.ActionXPath;
             ActionValue = actions.ActionValue;
+            ActionRandomLength = actions.ActionRandomLength;
             ActionAction = actions.ActionAction;
         }
         public ActionsObject()
         {
             ActionXPath = "";
             ActionValue = "";
+            ActionRandomLength = 0;
             ActionAction = "";
         }
     }
