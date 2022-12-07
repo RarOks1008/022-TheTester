@@ -5,15 +5,35 @@
 ## Remarks
 
 ### Files
-- you need to create an json object named *tester.json* which is a **List<TestingObject>** with the properties bellow:
+
+- You only need to add the **tester.json** file in the *bin/Debug* folder
+- **tester.json** file should be made according to the example given bellow:
+```
+{
+	"TestingsObject": [
+		{
+			"Url": "https://someurl.com",
+			"NumberOfActions": 30,
+			"DelayBetweenActions": 1,
+			"DelayToNextObject": 20,
+			"ActionsObject": [
+				{
+					"ActionXPath": "XPath",
+					"ActionValue": "Value",
+					"ActionRandomLength": 0,
+					"ActionAction": "input"
+				},
+		}
+	]
+}
+```
+- properties in the json file are:
+  - *TestingsObject* - array of objects to test.
   - *Url* - url of the inputs to check.
   - *NumberOfActions* - number of times to repeat the given task.
   - *DelayBetweenActions* - delay between actions for system to wait.
   - *DelayToNextObject* - delay to going to the next item in the list.
-  - *List<ActionsObject>* - array of **ActionsObject**.
-  - *Url* - url to navigate to.
-  - *Value* - value expected to get on the element.
-  - *XPath* - FullXPath of the element to check.
+  - *ActionsObject* - array of actions to test.
 
 - properties in the object **ActionsObject** are:
   - *ActionXPath* - xpath of the element to test.
