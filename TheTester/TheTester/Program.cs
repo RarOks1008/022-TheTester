@@ -8,6 +8,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System.Net;
+using System.Xml.Linq;
 
 namespace TheTester
 {
@@ -50,7 +51,8 @@ namespace TheTester
                             {
                                 webElem.Clear();
                                 webElem.SendKeys(randomGenerator.RandomString(actionObj.ActionRandomLength));
-                            } else if (actionObj.ActionValue == "randomnumbers")
+                            }
+                            else if (actionObj.ActionValue == "randomnumbers")
                             {
                                 webElem.Clear();
                                 webElem.SendKeys(randomGenerator.RandomNumbers(actionObj.ActionRandomLength));
@@ -70,6 +72,8 @@ namespace TheTester
                         {
                             IWebElement webElem = browser.FindElement(By.XPath(actionObj.ActionXPath));
                             Actions act = new Actions(browser);
+                            ((IJavaScriptExecutor)browser).ExecuteScript("arguments[0].scrollIntoView();", webElem);
+                            System.Threading.Thread.Sleep(1 * 1000);
                             act.MoveToElement(webElem).Click().Build().Perform();
                         }
                         if (actionObj.ActionAction == "select")
