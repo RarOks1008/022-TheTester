@@ -44,45 +44,56 @@ namespace TheTester
                     browser.Navigate().Refresh();
                     foreach (ActionsObject actionObj in testObj.ActionsObject)
                     {
-                        if (actionObj.ActionAction == "input")
+                        if (browser.FindElements(By.XPath(actionObj.ActionXPath)).Count() > 0)
                         {
-                            IWebElement webElem = browser.FindElement(By.XPath(actionObj.ActionXPath));
-                            if (actionObj.ActionValue == "randomstring")
+                            if (actionObj.ActionAction == "input")
                             {
-                                webElem.Clear();
-                                webElem.SendKeys(randomGenerator.RandomString(actionObj.ActionRandomLength));
+                                IWebElement webElem = browser.FindElement(By.XPath(actionObj.ActionXPath));
+                                if (actionObj.ActionValue == "randomstring")
+                                {
+                                    webElem.Clear();
+                                    webElem.SendKeys(randomGenerator.RandomString(actionObj.ActionRandomLength));
+                                }
+                                else if (actionObj.ActionValue == "randomnumbers")
+                                {
+                                    webElem.Clear();
+                                    webElem.SendKeys(randomGenerator.RandomNumbers(actionObj.ActionRandomLength));
+                                }
+                                else if (actionObj.ActionValue == "randomletters")
+                                {
+                                    webElem.Clear();
+                                    webElem.SendKeys(randomGenerator.RandomLetters(actionObj.ActionRandomLength));
+                                }
+                                else if (actionObj.ActionValue == "plazma")
+                                {
+                                    webElem.Clear();
+                                    webElem.SendKeys("1855" + randomGenerator.RandomNumbers(actionObj.ActionRandomLength) + "/1860" + randomGenerator.RandomNumbers(actionObj.ActionRandomLength) + "PP");
+                                }
+                                else
+                                {
+                                    webElem.Clear();
+                                    webElem.SendKeys(actionObj.ActionValue);
+                                }
                             }
-                            else if (actionObj.ActionValue == "randomnumbers")
+                            if (actionObj.ActionAction == "click")
                             {
-                                webElem.Clear();
-                                webElem.SendKeys(randomGenerator.RandomNumbers(actionObj.ActionRandomLength));
+                                IWebElement webElem = browser.FindElement(By.XPath(actionObj.ActionXPath));
+                                Actions act = new Actions(browser);
+                                ((IJavaScriptExecutor)browser).ExecuteScript("arguments[0].scrollIntoView();", webElem);
+                                System.Threading.Thread.Sleep(1 * 1000);
+                                act.MoveToElement(webElem).Click().Build().Perform();
                             }
-                            else if (actionObj.ActionValue == "randomletters")
+                            if (actionObj.ActionAction == "select")
                             {
-                                webElem.Clear();
-                                webElem.SendKeys(randomGenerator.RandomLetters(actionObj.ActionRandomLength));
+                                IWebElement webElem = browser.FindElement(By.XPath(actionObj.ActionXPath));
+                                SelectElement selectElement = new SelectElement(webElem);
+                                selectElement.SelectByValue(actionObj.ActionValue);
                             }
-                            else
-                            {
-                                webElem.Clear();
-                                webElem.SendKeys(actionObj.ActionValue);
-                            }
-                        }
-                        if (actionObj.ActionAction == "click")
+                            System.Threading.Thread.Sleep(testObj.DelayBetweenActions * 1000);
+                        } else
                         {
-                            IWebElement webElem = browser.FindElement(By.XPath(actionObj.ActionXPath));
-                            Actions act = new Actions(browser);
-                            ((IJavaScriptExecutor)browser).ExecuteScript("arguments[0].scrollIntoView();", webElem);
-                            System.Threading.Thread.Sleep(1 * 1000);
-                            act.MoveToElement(webElem).Click().Build().Perform();
+                            Console.WriteLine("Element can't be found! Element XPath: " + actionObj.ActionXPath);
                         }
-                        if (actionObj.ActionAction == "select")
-                        {
-                            IWebElement webElem = browser.FindElement(By.XPath(actionObj.ActionXPath));
-                            SelectElement selectElement = new SelectElement(webElem);
-                            selectElement.SelectByValue(actionObj.ActionValue);
-                        }
-                        System.Threading.Thread.Sleep(testObj.DelayBetweenActions * 1000);
                     }
                     System.Threading.Thread.Sleep(testObj.DelayToNextObject * 1000);
                 }
